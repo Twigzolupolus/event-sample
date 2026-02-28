@@ -22,6 +22,7 @@ npm run dev
 ### Admin access
 - URL: `http://localhost:3000/admin/login`
 - Password: from `ADMIN_PASSWORD` in `.env`
+- Reset saved admin credential: `npm run admin:reset`
 
 ### Notes
 - No RSVP
