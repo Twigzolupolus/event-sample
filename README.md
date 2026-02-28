@@ -12,7 +12,7 @@ Simple event registry web app.
 
 ### Setup
 ```bash
-npm install
+npm install --include=dev
 cp .env.example .env
 npm run db:migrate
 npm run db:seed
@@ -27,9 +27,6 @@ npm run dev
 - No RSVP
 - No user accounts
 - URL-only image field
-
-### Security & ops
-See \ for rate limiting, CSRF, passcode rotation, and backup automation.
 
 ### Security & ops
 See `docs-security-ops.md` for rate limiting, CSRF, passcode rotation, and backup automation.
