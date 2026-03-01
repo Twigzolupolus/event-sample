@@ -50,7 +50,7 @@ export function proxy(req: NextRequest) {
   }
 
   if (isAdminPath || isAdminApi) {
-    if (isAdminDebug) return NextResponse.next();
+    if (isAdminDebug || pathname === "/api/admin/login") return NextResponse.next();
     const token = req.cookies.get(ADMIN_COOKIE)?.value;
     if (token && token === process.env.ADMIN_COOKIE_SECRET) return NextResponse.next();
 
