@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import AdminEventsTable from "@/components/AdminEventsTable";
 import AdminSecurityPanel from "@/components/AdminSecurityPanel";
+import AdminLogoutButton from "@/components/AdminLogoutButton";
 import { publishDueDrafts } from "@/lib/scheduler";
 import Pagination from "@/components/Pagination";
 
@@ -22,8 +23,8 @@ export default async function AdminPage({
   const { q, status, category, sort, page: pageStr, pageSize: pageSizeStr } = await searchParams;
   const page = Math.max(1, Number(pageStr || "1"));
   const allowed = new Set([10, 20, 50, 100]);
-  const parsedPageSize = Number(pageSizeStr || "20");
-  const pageSize = allowed.has(parsedPageSize) ? parsedPageSize : 20;
+  const parsedPageSize = Number(pageSizeStr || "10");
+  const pageSize = allowed.has(parsedPageSize) ? parsedPageSize : 10;
 
   const where = {
     ...(status && status !== "ALL" ? { status } : {}),
@@ -45,14 +46,14 @@ export default async function AdminPage({
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   // Resilient query for environments that have not migrated to eventCode yet.
-  let events: Array<{ id: string; title: string; category: string; status: "DRAFT" | "PUBLISHED"; eventCode: string | null }> = [];
+  let events: Array<{ id: string; title: string; category: string; status: "DRAFT" | "PUBLISHED"; eventCode: string | null; date: Date }> = [];
   try {
     events = await db.event.findMany({
       where,
       orderBy,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      select: { id: true, title: true, category: true, status: true, eventCode: true },
+      select: { id: true, title: true, category: true, status: true, eventCode: true, date: true },
     });
   } catch {
     const fallback = await db.event.findMany({
@@ -60,7 +61,7 @@ export default async function AdminPage({
       orderBy,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      select: { id: true, title: true, category: true, status: true },
+      select: { id: true, title: true, category: true, status: true, date: true },
     });
     events = fallback.map((e) => ({ ...e, eventCode: null }));
   }
@@ -96,7 +97,7 @@ export default async function AdminPage({
         <div className="flex gap-2">
           <Link className="rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 px-3 py-2 text-sm font-medium text-white" href="/admin/new">+ New Event</Link>
           <Link className="rounded-xl border border-amber-300/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-200" href="/admin/approvals">Pending Approvals</Link>
-          <form action="/api/admin/logout" method="post"><button className="rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-200">Logout</button></form>
+          <AdminLogoutButton />
           {process.env.NODE_ENV !== "production" ? (
             <form action="/api/admin/reseed" method="post"><button className="rounded-xl border border-white/20 px-3 py-2 text-sm text-slate-200">Reseed</button></form>
           ) : null}
