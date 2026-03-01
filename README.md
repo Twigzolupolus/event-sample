@@ -114,4 +114,4 @@ If login keeps failing:
 - URL-only image field
 
 ### Security & ops
-See `docs-security-ops.md` for rate limiting, CSRF, passcode rotation, and backup automation.
+See `docs/docs-security-ops.md` for rate limiting, CSRF, passcode rotation, and backup automation.
