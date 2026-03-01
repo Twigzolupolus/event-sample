@@ -4,9 +4,9 @@ This guide gives you PR preview URLs on Cloudflare while preserving your current
 
 ## Goal
 
-- Keep local development smooth (`sqlite` + `prisma/dev.db`).
+- Use Postgres via environment-specific `DATABASE_URL` values.
 - Add cloud previews for PRs and production deploys on Cloudflare Pages.
-- Avoid breaking existing local workflows.
+- Note: current app architecture is Node-runtime oriented; Cloudflare Pages may require Edge refactor.
 
 ---
 
@@ -15,24 +15,21 @@ This guide gives you PR preview URLs on Cloudflare while preserving your current
 Use **Cloudflare Pages + external Postgres (Neon)** for previews/prod.
 
 Why:
-- Your app currently uses Prisma with SQLite locally.
+- Your app uses Prisma with PostgreSQL in local and hosted environments.
 - Cloudflare runtime does not reliably support local file DB persistence.
 - Prisma + Postgres is the lowest-friction cloud path.
 
 ---
 
-## 1) Keep Local Workflow Exactly as-is
+## 1) Local Workflow
 
-No immediate local disruption:
+Use local/dev Postgres in `.env`:
+- `DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB_NAME?schema=public"`
 
-- Continue local `.env` with:
-  - `DATABASE_URL="file:./dev.db"`
-- Continue using:
-  - `npm run db:migrate`
-  - `npm run db:seed`
-  - `npm run dev`
-
-Canonical local DB remains: `prisma/dev.db`.
+Continue using:
+- `npm run db:migrate`
+- `npm run db:seed`
+- `npm run dev`
 
 ---
 
@@ -112,14 +109,14 @@ DATABASE_URL="<neon-url>" npm run db:seed
 
 Use separate env files:
 
-- `.env` (local default): SQLite
+- `.env` (local default): PostgreSQL URL
 - `.env.preview` (optional): preview-like values
 - `.env.production` (optional): production-like values
 
 Example local `.env`:
 
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB_NAME?schema=public"
 ADMIN_PASSWORD="change-me"
 ADMIN_COOKIE_SECRET="change-me-long-random-secret"
 ```
@@ -146,7 +143,7 @@ On each PR preview URL, verify:
 
 ## 9) First-Time Cutover Plan (Safe)
 
-1. Keep current local SQLite setup untouched.
+1. Keep current local Postgres setup intact.
 2. Configure Cloudflare + Neon env vars.
 3. Run cloud migrations.
 4. Deploy one test branch, validate preview URL.
@@ -166,14 +163,14 @@ On each PR preview URL, verify:
 - Confirm middleware still allowlists `/api/admin/login`.
 
 ### Local dev broke after cloud setup
-- Ensure local `.env` still uses `DATABASE_URL="file:./dev.db"`.
+- Ensure local `.env` still uses `DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB_NAME?schema=public"`.
 - Re-run local migrate + seed.
 
 ---
 
 ## 11) Decision Record
 
-- **Local:** SQLite (`prisma/dev.db`) for seamless dev speed.
-- **Cloud previews/prod:** Postgres (Neon) for persistence and runtime compatibility.
+- **Local:** PostgreSQL (dev instance)
+- **Cloud previews/prod:** PostgreSQL (Neon/Supabase/Vercel Postgres)
 - **Hosting:** Cloudflare Pages with automatic PR preview URLs.
 

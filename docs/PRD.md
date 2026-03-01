@@ -12,7 +12,7 @@ Event Board is a lightweight event publishing and discovery web application with
 - A **public experience** for browsing event listings and event details
 - A **single-admin back office** for creating/managing events
 - A **simple auth model** (admin passcode + cookie session)
-- SQLite + Prisma for fast local setup and reproducibility
+- PostgreSQL + Prisma for reliable local/cloud parity and reproducibility
 
 The system is optimized for low operational overhead and rapid deployment.
 
@@ -128,18 +128,21 @@ The system is optimized for low operational overhead and rapid deployment.
 ## 6) Data & Persistence Requirements
 
 ### 6.1 Database
-- **Engine:** SQLite
+- **Engine:** PostgreSQL
 - **ORM:** Prisma
-- **Canonical DB file:** `prisma/dev.db`
+- **Primary DB:** PostgreSQL (e.g., Neon / Vercel Postgres / Supabase)
 
-### 6.2 DB Path Rule (Critical)
-- Use `DATABASE_URL="file:./dev.db"`.
-- Because schema is under `prisma/schema.prisma`, it resolves to `prisma/dev.db`.
-- Do not use:
-  - root `dev.db`
-  - `prisma/prisma/dev.db`
+### 6.2 DB URL Rule (Critical)
+- Use a valid PostgreSQL `DATABASE_URL` in each environment.
+- Keep credentials out of git; configure via environment variables only.
+- Recommended providers: Neon / Vercel Postgres / Supabase.
 
 ### 6.3 Admin Credential
+
+### 6.4 Hosting Recommendation
+- Preferred hosting for current architecture: **Vercel** with Postgres.
+- Cloudflare Pages with `next-on-pages` currently requires broad Edge-runtime refactoring for this app.
+
 - Admin credential persisted in `AdminCredential` table (singleton row).
 - Auth flow:
   - if DB credential exists → verify hashed password
@@ -179,7 +182,7 @@ The system is optimized for low operational overhead and rapid deployment.
 - **Framework:** Next.js 16 (App Router)
 - **Frontend:** React 19 + TypeScript
 - **Backend:** Next.js Route Handlers (API routes)
-- **ORM/DB:** Prisma + SQLite
+- **ORM/DB:** Prisma + PostgreSQL
 - **Validation:** Zod
 - **Styling:** Tailwind CSS 4
 - **Linting:** ESLint (Next config)
@@ -200,7 +203,7 @@ npm run dev
 
 ### 10.2 Required `.env`
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB_NAME?schema=public"
 ADMIN_PASSWORD="change-me"
 ADMIN_COOKIE_SECRET="change-me-long-random-secret"
 ```
@@ -248,8 +251,7 @@ Expected: `HTTP 200` and body contains `{"ok":true}`.
 - Event rows include date.
 
 ### AC-DB
-- Canonical DB path is `prisma/dev.db`.
-- Root `dev.db` and `prisma/prisma/dev.db` are not tracked/used.
+- Canonical DB configuration is via PostgreSQL `DATABASE_URL` per environment.
 
 ### AC-Docs
 - README includes setup, env, runbook commands, and stack summary.
@@ -278,7 +280,7 @@ Expected: `HTTP 200` and body contains `{"ok":true}`.
 5. Admin pagination works correctly.
 6. Default page size is 10.
 7. Event row date is visible.
-8. DB resolves to `prisma/dev.db`.
+8. Database connectivity works via configured PostgreSQL `DATABASE_URL`.
 
 ---
 
@@ -298,7 +300,7 @@ This PRD is sufficient for another team to reproduce the current product behavio
 - auth behavior,
 - admin dashboard UX (pagination/date/default size),
 - logout UX behavior,
-- canonical Prisma/SQLite workflow,
+- canonical Prisma/PostgreSQL workflow,
 - and operational runbook requirements.
 
 ---
@@ -443,7 +445,7 @@ If any endpoint is added/removed/renamed, this section must be updated in the sa
 
 | Variable | Development | Staging | Production | Required | Notes |
 |---|---|---|---|---|---|
-| `DATABASE_URL` | `file:./dev.db` | env-specific DB URL | env-specific DB URL | Yes | With schema in `prisma/`, dev resolves to `prisma/dev.db`. |
+| `DATABASE_URL` | local Postgres URL | staging Postgres URL | production Postgres URL | Yes | Use provider URLs from Neon/Vercel Postgres/Supabase. SQLite allowed only for local prototype workflows. |
 | `ADMIN_PASSWORD` | local passcode | staged secret | production secret | Yes | Used for first-login fallback if no DB credential exists. |
 | `ADMIN_COOKIE_SECRET` | local random secret | staged secret | production secret | Yes | Session/cookie signing secret; keep long and random. |
 
@@ -607,7 +609,7 @@ Cookie: admin_session=...
    - Deferred: broader integration/e2e auth and moderation coverage.
 
 3. **Production DB profile**
-   - Current baseline uses SQLite.
+   - Current baseline uses PostgreSQL.
    - Deferred: first-class Postgres profile and migration playbook.
 
 4. **Advanced moderation UX**

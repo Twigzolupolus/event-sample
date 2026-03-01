@@ -13,7 +13,7 @@ Simple event registry web app.
 ### Project stack
 - **Framework:** Next.js 16 (App Router) + React 19
 - **Language:** TypeScript
-- **Database:** SQLite (Prisma ORM)
+- **Database:** PostgreSQL (Prisma ORM)
 - **ORM & Migrations:** Prisma (`@prisma/client` + `prisma` CLI)
 - **Validation:** Zod
 - **Styling:** Tailwind CSS 4
@@ -31,18 +31,18 @@ npm run dev
 
 ### Required `.env` values
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB_NAME?schema=public"
 ADMIN_PASSWORD="change-me"
 ADMIN_COOKIE_SECRET="change-me-long-random-secret"
 ```
 
-> With schema at `prisma/schema.prisma`, `DATABASE_URL="file:./dev.db"` resolves to `prisma/dev.db`.
+> Current baseline uses PostgreSQL across local + hosted environments.
+> Recommended hosted provider: **Neon** (works well with Vercel previews).
 
-
-### Database file location
-- Canonical SQLite file: `prisma/dev.db`
-- Do **not** use `dev.db` at repo root or `prisma/prisma/dev.db`
-- Keep `DATABASE_URL="file:./dev.db"` (it resolves to `prisma/dev.db` because schema is under `prisma/`)
+### Database mode
+- ORM: Prisma
+- Provider: `postgresql` (fixed in `prisma/schema.prisma`)
+- Local + cloud use Postgres `DATABASE_URL` values per environment
 
 ### Daily commands (important)
 
@@ -115,3 +115,16 @@ If login keeps failing:
 
 ### Security & ops
 See `docs/docs-security-ops.md` for rate limiting, CSRF, passcode rotation, and backup automation.
+
+
+
+### Deployment recommendation
+- **Preferred:** PostgreSQL (Neon recommended) + Vercel previews.
+- **Cloudflare Pages:** current app is Node-runtime oriented; Pages + next-on-pages requires broader Edge-runtime refactor.
+
+### Optional local SQLite mode (legacy/dev-only)
+PostgreSQL is the default and preferred path. If you must run SQLite locally for quick experiments:
+- set `DATABASE_URL="file:./dev.db"`
+- switch Prisma schema provider back to `sqlite` (or use a dedicated sqlite schema workflow)
+
+> Use this only for local prototyping; keep hosted environments on PostgreSQL.

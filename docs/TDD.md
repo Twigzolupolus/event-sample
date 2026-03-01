@@ -12,7 +12,7 @@ Event Board is a Next.js App Router application with server route handlers used 
 
 - **Frontend:** React + TypeScript UI for public and admin surfaces.
 - **Backend:** Next.js route handlers under `src/app/api/**`.
-- **Persistence:** Prisma ORM with SQLite (`prisma/dev.db` in local dev).
+- **Persistence:** Prisma ORM with PostgreSQL (local + hosted environments).
 - **Validation:** Zod at request boundaries where applicable.
 - **Security model:** single-admin session cookie with middleware enforcement.
 
@@ -38,9 +38,7 @@ High-level flow:
 
 ## 3) Data Design
 
-Canonical local DB location is `prisma/dev.db` with:
-- `DATABASE_URL="file:./dev.db"`
-- Schema-relative resolution from `prisma/schema.prisma`.
+Database access is configured through environment-specific PostgreSQL `DATABASE_URL` values.
 
 Core models (logical):
 - Event
@@ -51,6 +49,8 @@ Core models (logical):
 - Join/subscribe records (logical capture)
 
 Source of truth remains `prisma/schema.prisma`.
+
+Optional local SQLite prototyping can be supported via a separate schema/provider workflow; production/preview remain PostgreSQL.
 
 ---
 
@@ -160,7 +160,7 @@ Operational endpoints/scripts:
 
 ## 12) Tradeoffs and Deferred Engineering
 
-- SQLite chosen for setup speed and low operational burden; defer full Postgres profile.
+- PostgreSQL chosen for local/cloud parity and deployment reliability.
 - Single-admin model keeps auth simple; defer RBAC and multi-admin.
 - Current test posture is pragmatic; deeper integration/e2e deferred.
 
@@ -170,6 +170,6 @@ Operational endpoints/scripts:
 
 1. Any endpoint change must update PRD endpoint inventory + traceability matrix.
 2. Security-sensitive changes require explicit regression checks for login/logout/middleware.
-3. DB path rules must remain consistent with schema location.
+3. DB environment variable configuration must remain consistent across preview/production.
 4. Keep PRs small and merge only after build passes.
 
