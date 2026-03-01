@@ -436,3 +436,189 @@ This inventory reflects all current route handlers under `src/app/api/**`.
 ### 17.6 Documentation Rule
 If any endpoint is added/removed/renamed, this section must be updated in the same PR.
 
+
+---
+
+## 18) Environment Matrix
+
+| Variable | Development | Staging | Production | Required | Notes |
+|---|---|---|---|---|---|
+| `DATABASE_URL` | `file:./dev.db` | env-specific DB URL | env-specific DB URL | Yes | With schema in `prisma/`, dev resolves to `prisma/dev.db`. |
+| `ADMIN_PASSWORD` | local passcode | staged secret | production secret | Yes | Used for first-login fallback if no DB credential exists. |
+| `ADMIN_COOKIE_SECRET` | local random secret | staged secret | production secret | Yes | Session/cookie signing secret; keep long and random. |
+
+Guidelines:
+- Never commit real secrets.
+- Keep `.env.example` as placeholders only.
+- Rotate staging/prod secrets regularly.
+
+---
+
+## 19) Data Model Appendix (ERD-lite)
+
+Primary entities (logical model):
+
+- **Event**
+  - Core fields: title, slug, category, date, status (`DRAFT`/`PUBLISHED`), eventCode, media/description fields.
+  - Relationships: may own challenge records and related analytics events.
+
+- **AdminCredential**
+  - Singleton auth record (`id = singleton`), stores `passwordHash`.
+  - Used when present; otherwise login can fallback to `ADMIN_PASSWORD` env.
+
+- **Challenge**
+  - Challenge metadata attached to an event/experience context.
+  - Supports challenge lifecycle and completion operations.
+
+- **ChallengeSubmission**
+  - Submission records with moderation workflow.
+  - States/actions: approve / deny via admin endpoints.
+
+- **Analytics Events (logical)**
+  - View/category/search tracking payloads captured by analytics endpoints.
+
+- **Subscription/Join records (logical)**
+  - Growth/engagement capture via `/api/subscribe` and `/api/join`.
+
+Notes:
+- Exact schema fields are source-of-truth in `prisma/schema.prisma`.
+- Reproduction teams should generate DB diagrams directly from Prisma schema for implementation-level fidelity.
+
+---
+
+## 20) API Contract Samples
+
+### 20.1 Admin Login
+**Request**
+```http
+POST /api/admin/login
+Content-Type: application/json
+
+{"password":"change-me"}
+```
+
+**Success**
+```http
+200 OK
+Set-Cookie: admin_session=...
+
+{"ok":true}
+```
+
+**Failure**
+```http
+401 Unauthorized
+
+{"error":"Unauthorized"}
+```
+
+### 20.2 Create Event
+**Request**
+```http
+POST /api/events
+Content-Type: application/json
+Cookie: admin_session=...
+
+{
+  "title":"Spring Meetup",
+  "slug":"spring-meetup",
+  "category":"community",
+  "date":"2026-04-10T18:00:00.000Z",
+  "status":"DRAFT"
+}
+```
+
+**Success**
+```http
+200 OK
+
+{"ok":true,"event":{...}}
+```
+
+### 20.3 Update Event Status
+**Request**
+```http
+POST /api/events/{id}/status
+Content-Type: application/json
+Cookie: admin_session=...
+
+{"status":"PUBLISHED"}
+```
+
+**Success**
+```http
+200 OK
+
+{"ok":true}
+```
+
+### 20.4 Duplicate Event
+**Request**
+```http
+POST /api/events/{id}/duplicate
+Cookie: admin_session=...
+```
+
+**Success**
+```http
+200 OK
+
+{"ok":true,"event":{...}}
+```
+
+### 20.5 Challenge Submission Approval
+**Request**
+```http
+POST /api/challenges/submissions/{id}/approve
+Cookie: admin_session=...
+```
+
+**Success**
+```http
+200 OK
+
+{"ok":true}
+```
+
+### 20.6 Challenge Submission Denial
+**Request**
+```http
+POST /api/challenges/submissions/{id}/deny
+Cookie: admin_session=...
+```
+
+**Success**
+```http
+200 OK
+
+{"ok":true}
+```
+
+---
+
+## 21) Open Issues / Deferred Backlog
+
+1. **Multi-admin & RBAC**
+   - Current model is single-admin passcode.
+   - Deferred: multiple operators with roles/permissions.
+
+2. **Automated test expansion**
+   - Baseline build checks exist.
+   - Deferred: broader integration/e2e auth and moderation coverage.
+
+3. **Production DB profile**
+   - Current baseline uses SQLite.
+   - Deferred: first-class Postgres profile and migration playbook.
+
+4. **Advanced moderation UX**
+   - Endpoints exist for approve/deny.
+   - Deferred: richer queue tooling, audit UI, bulk moderation actions.
+
+5. **Analytics productization**
+   - Capture endpoints exist.
+   - Deferred: dashboarding, retention policies, and data governance docs.
+
+6. **Operational hardening**
+   - Backup scripts exist.
+   - Deferred: fully documented restore drills and SLO-backed ops runbook.
+
