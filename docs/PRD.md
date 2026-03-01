@@ -300,3 +300,93 @@ This PRD is sufficient for another team to reproduce the current product behavio
 - logout UX behavior,
 - canonical Prisma/SQLite workflow,
 - and operational runbook requirements.
+
+---
+
+## 16) Detailed Feature Inventory (for Full Reproduction)
+
+This section captures the project-specific details that go beyond a generic event CRUD app.
+
+### 16.1 Admin Event Management (Detailed)
+- Event create/edit forms include fields used across public + experience flows.
+- Status workflow: draft vs published.
+- Actions on event records include:
+  - edit
+  - duplicate
+  - status updates
+  - regenerate code
+  - delete / bulk delete
+- Admin list supports:
+  - query search
+  - status/category filters
+  - sort
+  - pagination
+  - default page size 10
+  - event row metadata includes date
+
+### 16.2 Pending Approvals & Moderation Surface
+- Dedicated admin approvals route: `/admin/approvals`.
+- Challenge submissions have moderation endpoints:
+  - approve: `/api/challenges/submissions/[id]/approve`
+  - deny: `/api/challenges/submissions/[id]/deny`
+- PRD consumers should implement a moderation queue UX and clear submission state transitions.
+
+### 16.3 Challenges / Experience System
+- Experience flow routes:
+  - `/experience/[code]`
+  - `/experience/[code]/brief`
+  - `/experience/[code]/challenges`
+  - `/experience/[code]/leaderboard`
+- Challenge API surface exists for:
+  - listing challenges
+  - challenge detail
+  - submission completion
+- Reproduction should include:
+  - challenge progression rules
+  - submission model
+  - leaderboard scoring/read model
+
+### 16.4 Public UX + Journey
+- Public pages include:
+  - main event listing
+  - event detail by slug
+  - category-specific listing
+  - join flow and success confirmation
+- Analytics endpoints exist for user behavior signals:
+  - view tracking
+  - category interactions
+  - search interactions
+
+### 16.5 Uploads & Content Ops
+- Upload API endpoint exists (`/api/uploads`) and should be part of deployment planning.
+- RSS and sitemap endpoints are present and should be kept functional for discoverability/SEO.
+
+### 16.6 Auth & Security Nuances (Important)
+- Login endpoint must be middleware-allowlisted (`/api/admin/login`) or auth deadlocks occur.
+- Logout should be client-driven redirect to avoid host mismatch issues.
+- CSRF/origin checks must be applied to protected operations, but not in ways that block login flow.
+- Temporary debug routes can be used for incidents, but must be removed after stabilization.
+
+### 16.7 Operational Scripts & Backups
+- Existing scripts include:
+  - `db:migrate`
+  - `db:seed`
+  - `backup:db`
+  - `admin:reset`
+- Backup behavior should be documented with restore procedure in production handoff.
+
+### 16.8 UI/UX Fixes to Preserve
+- Admin logout must route to home page reliably.
+- Admin table usability improvements (pagination window + defaults + date visibility) are required baseline behavior.
+- Reproduction teams should treat these as regression-sensitive acceptance criteria.
+
+### 16.9 “What to Include” Guidance
+For faithful reproduction, include:
+1. Core event CRUD and publishing workflow.
+2. Admin auth/session behavior exactly as stabilized.
+3. Challenges + submissions + approvals flow.
+4. Experience pages and leaderboard behavior.
+5. Analytics event ingestion endpoints.
+6. Operational scripts and DB path conventions.
+7. UX fixes already validated in this implementation.
+
