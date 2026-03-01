@@ -28,6 +28,12 @@ ADMIN_COOKIE_SECRET="change-me-long-random-secret"
 
 > With schema at `prisma/schema.prisma`, `DATABASE_URL="file:./dev.db"` resolves to `prisma/dev.db`.
 
+
+### Database file location
+- Canonical SQLite file: `prisma/dev.db`
+- Do **not** use `dev.db` at repo root or `prisma/prisma/dev.db`
+- Keep `DATABASE_URL="file:./dev.db"` (it resolves to `prisma/dev.db` because schema is under `prisma/`)
+
 ### Daily commands (important)
 
 Run app:
