@@ -10,6 +10,16 @@ Simple event registry web app.
 - Draft vs Published
 - Seeded sample events
 
+### Project stack
+- **Framework:** Next.js 16 (App Router) + React 19
+- **Language:** TypeScript
+- **Database:** SQLite (Prisma ORM)
+- **ORM & Migrations:** Prisma (`@prisma/client` + `prisma` CLI)
+- **Validation:** Zod
+- **Styling:** Tailwind CSS 4
+- **Linting:** ESLint (Next config)
+- **Runtime/Tooling:** Node.js, tsx (for seed/dev scripts)
+
 ### Setup (first run)
 ```bash
 npm install --include=dev
