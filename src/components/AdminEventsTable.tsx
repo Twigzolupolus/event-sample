@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
-type Row = { id: string; title: string; category: string; status: "DRAFT" | "PUBLISHED"; eventCode: string | null };
+type Row = { id: string; title: string; category: string; status: "DRAFT" | "PUBLISHED"; eventCode: string | null; date: string | Date };
 
 export default function AdminEventsTable({ events }: { events: Row[] }) {
   const [selected, setSelected] = useState<string[]>([]);
@@ -127,7 +127,7 @@ export default function AdminEventsTable({ events }: { events: Row[] }) {
             <input aria-label={`Select ${event.title}`} type="checkbox" checked={selected.includes(event.id)} onChange={() => setSelected((s) => s.includes(event.id) ? s.filter((x) => x !== event.id) : [...s, event.id])} />
             <div>
               <p className="font-semibold text-white">{event.title}</p>
-              <p className="text-sm text-slate-300">{event.category} • {event.status}</p>
+              <p className="text-sm text-slate-300">{event.category} • {new Date(event.date).toLocaleDateString()} • {event.status}</p>
               <p className="text-xs text-cyan-300">Code: {event.eventCode || "(none)"}</p>
             </div>
           </div>

@@ -23,8 +23,8 @@ export default async function AdminPage({
   const { q, status, category, sort, page: pageStr, pageSize: pageSizeStr } = await searchParams;
   const page = Math.max(1, Number(pageStr || "1"));
   const allowed = new Set([10, 20, 50, 100]);
-  const parsedPageSize = Number(pageSizeStr || "20");
-  const pageSize = allowed.has(parsedPageSize) ? parsedPageSize : 20;
+  const parsedPageSize = Number(pageSizeStr || "10");
+  const pageSize = allowed.has(parsedPageSize) ? parsedPageSize : 10;
 
   const where = {
     ...(status && status !== "ALL" ? { status } : {}),
@@ -46,14 +46,14 @@ export default async function AdminPage({
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   // Resilient query for environments that have not migrated to eventCode yet.
-  let events: Array<{ id: string; title: string; category: string; status: "DRAFT" | "PUBLISHED"; eventCode: string | null }> = [];
+  let events: Array<{ id: string; title: string; category: string; status: "DRAFT" | "PUBLISHED"; eventCode: string | null; date: Date }> = [];
   try {
     events = await db.event.findMany({
       where,
       orderBy,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      select: { id: true, title: true, category: true, status: true, eventCode: true },
+      select: { id: true, title: true, category: true, status: true, eventCode: true, date: true },
     });
   } catch {
     const fallback = await db.event.findMany({
@@ -61,7 +61,7 @@ export default async function AdminPage({
       orderBy,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      select: { id: true, title: true, category: true, status: true },
+      select: { id: true, title: true, category: true, status: true, date: true },
     });
     events = fallback.map((e) => ({ ...e, eventCode: null }));
   }
