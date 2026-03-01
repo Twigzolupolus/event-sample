@@ -4,30 +4,26 @@ This guide explains how to deploy this project on Vercel while keeping local dev
 
 ## TL;DR
 
-- **Local dev:** keep SQLite (`prisma/dev.db`) exactly as-is.
-- **Cloud deploys (preview + production):** use Postgres.
+- **Local dev:** use a local/dev PostgreSQL database via `DATABASE_URL`.
+- **Cloud deploys (preview + production):** use Postgres (Neon/Vercel Postgres/Supabase).
 - **PR previews:** Vercel creates preview URLs automatically for each PR.
 
 ---
 
 ## 1) Why this split is required
 
-This project currently uses local SQLite for development (`DATABASE_URL="file:./dev.db"`).
+This project now uses PostgreSQL across local and hosted environments via `DATABASE_URL`.
 
-That is great locally, but not reliable for serverless cloud runtimes.
-
-So we use:
-- Local: SQLite (fast, simple)
-- Vercel preview/prod: Postgres (persistent, reliable)
+This keeps local/cloud behavior aligned and avoids provider mismatch.
 
 ---
 
 ## 2) Keep local workflow unchanged
 
-Keep your local `.env` as-is:
+Use local `.env` with a dev Postgres URL:
 
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB_NAME?schema=public"
 ADMIN_PASSWORD="change-me"
 ADMIN_COOKIE_SECRET="change-me-long-random-secret"
 ```
@@ -40,7 +36,7 @@ npm run db:seed
 npm run dev
 ```
 
-Canonical local DB remains: `prisma/dev.db`.
+Local and cloud both use Postgres connections, with different env-specific URLs.
 
 ---
 
@@ -127,7 +123,7 @@ For each PR preview:
 
 ## 9) Safe rollout plan
 
-1. Keep local SQLite untouched.
+1. Keep local Postgres configuration intact.
 2. Configure Vercel project + env vars.
 3. Run Postgres migrations.
 4. Open a test PR and verify preview URL.
@@ -147,7 +143,7 @@ For each PR preview:
 - Verify middleware still allows `/api/admin/login`.
 
 ### Local dev issues after deploy setup
-- Ensure local `.env` still uses `DATABASE_URL="file:./dev.db"`.
+- Ensure local `.env` points to your local/dev Postgres database URL.
 - Re-run local migrate + seed.
 
 ---
@@ -156,7 +152,7 @@ For each PR preview:
 
 - **Hosting:** Vercel
 - **Cloud DB:** Postgres (Vercel Postgres / Neon / Supabase)
-- **Local DB:** SQLite (`prisma/dev.db`)
+- **Local DB:** PostgreSQL (dev instance)
 - **Preview strategy:** auto-generated Vercel preview URL per PR
 
 
@@ -196,7 +192,7 @@ For each PR preview:
 - [ ] Logout returns to `/`
 
 ### Local dev safety
-- [ ] Local `.env` still points to `DATABASE_URL="file:./dev.db"`
+- [ ] Local `.env` points to local/dev Postgres `DATABASE_URL`
 - [ ] Local dev commands still pass (`db:migrate`, `db:seed`, `dev`)
 
 ### Production cutover
