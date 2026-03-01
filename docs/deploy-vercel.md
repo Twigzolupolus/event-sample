@@ -159,3 +159,48 @@ For each PR preview:
 - **Local DB:** SQLite (`prisma/dev.db`)
 - **Preview strategy:** auto-generated Vercel preview URL per PR
 
+
+---
+
+## 12) Vercel Readiness Checklist (Tick Before Go-Live)
+
+### Project setup
+- [ ] Vercel project imported from `Twigzolupolus/event-sample`
+- [ ] Framework detected as Next.js
+- [ ] Production branch set to `main`
+
+### Database
+- [ ] Cloud Postgres provisioned (Vercel Postgres / Neon / Supabase)
+- [ ] `DATABASE_URL` set for Preview environment
+- [ ] `DATABASE_URL` set for Production environment
+
+### Secrets
+- [ ] `ADMIN_PASSWORD` set for Preview
+- [ ] `ADMIN_COOKIE_SECRET` set for Preview
+- [ ] `ADMIN_PASSWORD` set for Production
+- [ ] `ADMIN_COOKIE_SECRET` set for Production
+- [ ] Preview/Production secrets are different
+
+### Migrations
+- [ ] Ran `prisma migrate deploy` against cloud database
+- [ ] Ran seed script where needed
+- [ ] Confirmed schema is current
+
+### Preview workflow
+- [ ] Opened a test PR
+- [ ] Vercel preview URL generated successfully
+- [ ] Login works on preview
+- [ ] `/admin` loads on preview
+- [ ] Event create/edit/delete works on preview
+- [ ] Pagination/default page size/date display validated
+- [ ] Logout returns to `/`
+
+### Local dev safety
+- [ ] Local `.env` still points to `DATABASE_URL="file:./dev.db"`
+- [ ] Local dev commands still pass (`db:migrate`, `db:seed`, `dev`)
+
+### Production cutover
+- [ ] Smoke-tested production URL after deploy
+- [ ] Confirmed admin auth flow
+- [ ] Confirmed event/challenge critical paths
+
