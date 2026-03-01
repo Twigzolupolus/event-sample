@@ -622,3 +622,33 @@ Cookie: admin_session=...
    - Backup scripts exist.
    - Deferred: fully documented restore drills and SLO-backed ops runbook.
 
+
+---
+
+## 22) Implementation Traceability Matrix
+
+| Feature / Requirement | UI Routes | API Endpoints | Key Implementation Files |
+|---|---|---|---|
+| Admin login + session issuance | `/admin/login` | `POST /api/admin/login` | `src/app/admin/login/page.tsx`, `src/app/api/admin/login/route.ts`, `src/proxy.ts` |
+| Admin logout + redirect to home | `/admin` -> `/` | `POST /api/admin/logout` | `src/components/AdminLogoutButton.tsx`, `src/app/api/admin/logout/route.ts`, `src/app/admin/page.tsx` |
+| Admin route protection | `/admin/**` | protected admin/event/challenge endpoints | `src/proxy.ts`, auth helpers in server utils |
+| Event creation | `/admin/new` | `POST /api/events` | `src/app/admin/new/page.tsx`, `src/app/api/events/route.ts` |
+| Event update/delete | `/admin/[id]/edit` | `PATCH /api/events/[id]`, `DELETE /api/events/[id]` | `src/app/admin/[id]/edit/page.tsx`, `src/app/api/events/[id]/route.ts` |
+| Event status workflow | `/admin`, `/admin/[id]/edit` | `POST /api/events/[id]/status` | `src/app/api/events/[id]/status/route.ts`, admin table/actions components |
+| Event duplicate/regenerate-code | `/admin` | `POST /api/events/[id]/duplicate`, `POST /api/events/[id]/regenerate-code` | `src/app/api/events/[id]/duplicate/route.ts`, `src/app/api/events/[id]/regenerate-code/route.ts` |
+| Admin list UX (pagination/date/default 10) | `/admin` | server-backed listing calls | `src/app/admin/page.tsx`, `src/components/Pagination.tsx`, `src/components/AdminEventsTable.tsx` |
+| Bulk event operations | `/admin` | `POST /api/events/bulk`, `POST /api/events/bulk-delete` | `src/app/api/events/bulk/route.ts`, `src/app/api/events/bulk-delete/route.ts` |
+| Slug validation | `/admin/new`, `/admin/[id]/edit` | `GET /api/events/slug-check` | `src/app/api/events/slug-check/route.ts`, form validation wiring |
+| Public event browsing | `/`, `/events/[slug]`, category pages | read/data fetch flows | `src/app/page.tsx`, event detail route files/components |
+| Experience journey | `/experience/[code]`, `/experience/[code]/brief`, `/experience/[code]/challenges`, `/experience/[code]/leaderboard` | challenge/join/analytics endpoints | experience route files + challenge/analytics APIs |
+| Challenge CRUD/flow | admin challenge surfaces + experience pages | `POST /api/challenges`, `PATCH /api/challenges/[id]`, `POST /api/challenges/[id]/complete` | `src/app/api/challenges/**/route.ts`, challenge UI components/pages |
+| Submission moderation | `/admin/approvals` | `POST /api/challenges/submissions/[id]/approve`, `POST /api/challenges/submissions/[id]/deny` | approvals UI route/components, moderation endpoints |
+| Analytics capture | public/experience interactions | `POST /api/analytics/view`, `POST /api/analytics/category`, `POST /api/analytics/search` | `src/app/api/analytics/**/route.ts` |
+| Join + subscription capture | public pages | `POST /api/join`, `POST /api/subscribe` | `src/app/api/join/route.ts`, `src/app/api/subscribe/route.ts` |
+| Upload handling | admin/content flows | `POST /api/uploads` | `src/app/api/uploads/route.ts` |
+| Admin operational controls | admin tools surface | `GET /api/admin/audit`, `POST /api/admin/backup`, `POST /api/admin/reseed`, `POST /api/admin/rotate-password` | `src/app/api/admin/*/route.ts`, admin tools pages/components |
+
+Notes:
+- Route/file names above are authoritative to current implementation and should be kept in sync with refactors.
+- If feature behavior changes, update this matrix in the same PR.
+
