@@ -34,7 +34,6 @@ export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isAdminPath = pathname.startsWith("/admin") && !pathname.startsWith("/admin/login");
   const isAdminApi = pathname.startsWith("/api/events") || pathname.startsWith("/api/admin");
-  const isAdminDebug = pathname === "/api/admin/debug-auth";
 
   // Rate limiting
   if (pathname === "/api/admin/login" && req.method === "POST" && hitRateLimit(req, "admin-login", 10, 60_000)) {
@@ -45,12 +44,12 @@ export function proxy(req: NextRequest) {
   }
 
   // CSRF protection for state-changing admin endpoints
-  if (isAdminApi && ["POST", "PATCH", "PUT", "DELETE"].includes(req.method) && pathname !== "/api/admin/login" && !isAdminDebug) {
+  if (isAdminApi && ["POST", "PATCH", "PUT", "DELETE"].includes(req.method) && pathname !== "/api/admin/login") {
     if (!sameOrigin(req)) return NextResponse.json({ error: "Invalid CSRF origin" }, { status: 403 });
   }
 
   if (isAdminPath || isAdminApi) {
-    if (isAdminDebug || pathname === "/api/admin/login") return NextResponse.next();
+    if (pathname === "/api/admin/login") return NextResponse.next();
     const token = req.cookies.get(ADMIN_COOKIE)?.value;
     if (token && token === process.env.ADMIN_COOKIE_SECRET) return NextResponse.next();
 
