@@ -390,3 +390,49 @@ For faithful reproduction, include:
 6. Operational scripts and DB path conventions.
 7. UX fixes already validated in this implementation.
 
+
+---
+
+## 17) API Endpoint Inventory (Current Implementation)
+
+This inventory reflects all current route handlers under `src/app/api/**`.
+
+### 17.1 Admin
+- `GET /api/admin/audit`
+- `POST /api/admin/backup`
+- `POST /api/admin/login`
+- `POST /api/admin/logout`
+- `POST /api/admin/reseed`
+- `POST /api/admin/rotate-password`
+
+### 17.2 Analytics
+- `POST /api/analytics/category`
+- `POST /api/analytics/search`
+- `POST /api/analytics/view`
+
+### 17.3 Challenges
+- `POST /api/challenges`
+- `PATCH /api/challenges/[id]`
+- `POST /api/challenges/[id]/complete`
+- `POST /api/challenges/submissions/[id]/approve`
+- `POST /api/challenges/submissions/[id]/deny`
+
+### 17.4 Events
+- `POST /api/events`
+- `GET /api/events/slug-check`
+- `POST /api/events/bulk`
+- `POST /api/events/bulk-delete`
+- `PATCH /api/events/[id]`
+- `DELETE /api/events/[id]`
+- `POST /api/events/[id]/duplicate`
+- `POST /api/events/[id]/regenerate-code`
+- `POST /api/events/[id]/status`
+
+### 17.5 Public Utility / Growth
+- `POST /api/join`
+- `POST /api/subscribe`
+- `POST /api/uploads`
+
+### 17.6 Documentation Rule
+If any endpoint is added/removed/renamed, this section must be updated in the same PR.
+
