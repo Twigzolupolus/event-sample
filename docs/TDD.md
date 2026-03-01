@@ -50,6 +50,8 @@ Core models (logical):
 
 Source of truth remains `prisma/schema.prisma`.
 
+Optional local SQLite prototyping can be supported via a separate schema/provider workflow; production/preview remain PostgreSQL.
+
 ---
 
 ## 4) Authentication & Authorization Design

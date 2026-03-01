@@ -445,7 +445,7 @@ If any endpoint is added/removed/renamed, this section must be updated in the sa
 
 | Variable | Development | Staging | Production | Required | Notes |
 |---|---|---|---|---|---|
-| `DATABASE_URL` | local Postgres URL | staging Postgres URL | production Postgres URL | Yes | Use provider URLs from Neon/Vercel Postgres/Supabase. |
+| `DATABASE_URL` | local Postgres URL | staging Postgres URL | production Postgres URL | Yes | Use provider URLs from Neon/Vercel Postgres/Supabase. SQLite allowed only for local prototype workflows. |
 | `ADMIN_PASSWORD` | local passcode | staged secret | production secret | Yes | Used for first-login fallback if no DB credential exists. |
 | `ADMIN_COOKIE_SECRET` | local random secret | staged secret | production secret | Yes | Session/cookie signing secret; keep long and random. |
 

@@ -117,7 +117,14 @@ If login keeps failing:
 See `docs/docs-security-ops.md` for rate limiting, CSRF, passcode rotation, and backup automation.
 
 
+
 ### Deployment recommendation
-- **Primary:** Vercel + Postgres (Vercel Postgres / Neon / Supabase)
-- **Preview URLs:** use Vercel preview deployments per PR
-- **Cloudflare Pages note:** current app is Node-runtime oriented; Cloudflare Pages + next-on-pages requires Edge-runtime refactor for all dynamic routes.
+- **Preferred:** PostgreSQL (Neon recommended) + Vercel previews.
+- **Cloudflare Pages:** current app is Node-runtime oriented; Pages + next-on-pages requires broader Edge-runtime refactor.
+
+### Optional local SQLite mode (legacy/dev-only)
+PostgreSQL is the default and preferred path. If you must run SQLite locally for quick experiments:
+- set `DATABASE_URL="file:./dev.db"`
+- switch Prisma schema provider back to `sqlite` (or use a dedicated sqlite schema workflow)
+
+> Use this only for local prototyping; keep hosted environments on PostgreSQL.
